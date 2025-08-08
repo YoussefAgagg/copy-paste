@@ -118,7 +118,7 @@ public class CopyPasteFrame extends JPanel implements Serializable {
         textl.setCellRenderer(getRenderer());
         p.setBackground(Color.BLACK);
         
-        // Create pinned text panel at the top
+        // Create pinned text panel for the left side
         JPanel pinnedPanel = new JPanel(new BorderLayout());
         pinnedPanel.setBackground(Color.BLACK);
         JLabel pinnedLabel = new JLabel("Pinned Text:");
@@ -127,23 +127,41 @@ public class CopyPasteFrame extends JPanel implements Serializable {
         pinnedPanel.add(pinnedLabel, BorderLayout.NORTH);
         
         JScrollPane pinnedScrollPane = new JScrollPane(pinnedList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        pinnedScrollPane.setPreferredSize(new Dimension(400, 80));
-        pinnedScrollPane.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, new Color(50, 80, 100)));
+        pinnedScrollPane.setPreferredSize(new Dimension(400, 350));
+        pinnedScrollPane.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 1, new Color(50, 80, 100)));
         pinnedPanel.add(pinnedScrollPane, BorderLayout.CENTER);
         
-        // Create main content panel
+        // Create main content panel for the right side
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(p, BorderLayout.NORTH);
+        
+        // Create label for copy history
+        JLabel copyLabel = new JLabel("Copy History:");
+        copyLabel.setForeground(Color.WHITE);
+        copyLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        
+        // Create panel for copy label and buttons
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(Color.BLACK);
+        topPanel.add(copyLabel, BorderLayout.NORTH);
+        topPanel.add(p, BorderLayout.CENTER);
+        
+        mainPanel.add(topPanel, BorderLayout.NORTH);
         
         JScrollPane sPane = new JScrollPane(textl, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         textl.setBackground(Color.BLACK);
         textl.setForeground(Color.WHITE);
-        sPane.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(50, 80, 100)));
+        sPane.setBorder(BorderFactory.createMatteBorder(1, 1, 0, 0, new Color(50, 80, 100)));
         mainPanel.add(sPane, BorderLayout.CENTER);
         
-        // Add panels to main frame
-        add(pinnedPanel, BorderLayout.NORTH);
-        add(mainPanel, BorderLayout.CENTER);
+        // Create horizontal split pane to place panels side by side
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pinnedPanel, mainPanel);
+        splitPane.setDividerLocation(420); // Set initial divider position
+        splitPane.setResizeWeight(0.5); // Equal resize weight for both sides
+        splitPane.setBackground(Color.BLACK);
+        splitPane.setBorder(null);
+        
+        // Add split pane to main frame
+        add(splitPane, BorderLayout.CENTER);
 
 
         Thread t = new Thread(new ContentsMonitor());
@@ -337,7 +355,7 @@ public class CopyPasteFrame extends JPanel implements Serializable {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(500, 400);
+        return new Dimension(900, 450);
     }
 
     protected String getClipboardContents() {
