@@ -12,7 +12,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.Serializable;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class CopyPasteFrame extends JPanel implements Serializable {
@@ -27,10 +32,15 @@ public class CopyPasteFrame extends JPanel implements Serializable {
     private JList<String> pinnedList;
     private JButton copy, remove, removeall, pin, unpin;
     private String flag;
+    private static final String PINNED_DIR = System.getProperty("user.home") + File.separator + "copy-past" + File.separator + ".pinedcopies";
+    private static final String PINNED_FILE = PINNED_DIR + File.separator + "pinned_messages.txt";
 
     public CopyPasteFrame() {
         d = new DefaultListModel<String>();
         pinnedModel = new DefaultListModel<String>();
+        
+        // Load saved pinned messages on startup
+        loadPinnedMessages();
 
         textl = new JList<String>(d);
         pinnedList = new JList<String>(pinnedModel);
@@ -139,6 +149,11 @@ public class CopyPasteFrame extends JPanel implements Serializable {
         Thread t = new Thread(new ContentsMonitor());
         t.setDaemon(true);
         t.start();
+        
+        // Add shutdown hook to save pinned messages when application closes
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            savePinnedMessages();
+        }));
         textl.addKeyListener(new KeyAdapter() {
 
             @Override
@@ -209,6 +224,8 @@ public class CopyPasteFrame extends JPanel implements Serializable {
                     if (!alreadyPinned) {
                         pinnedModel.addElement(selectedText);
                         d.remove(selectedIndex);
+                        // Save pinned messages to persistent storage
+                        savePinnedMessages();
                     }
                 }
             }
@@ -223,6 +240,8 @@ public class CopyPasteFrame extends JPanel implements Serializable {
                     String selectedText = pinnedModel.get(selectedIndex);
                     pinnedModel.remove(selectedIndex);
                     d.add(0, selectedText); // Add to top of clipboard list
+                    // Save pinned messages to persistent storage
+                    savePinnedMessages();
                 }
             }
         });
@@ -230,6 +249,66 @@ public class CopyPasteFrame extends JPanel implements Serializable {
 
     public int get() {
         return d.getSize();
+    }
+
+    /**
+     * Save pinned messages to persistent storage
+     */
+    private void savePinnedMessages() {
+        try {
+            // Create directory if it doesn't exist
+            Path dirPath = Paths.get(PINNED_DIR);
+            if (!Files.exists(dirPath)) {
+                Files.createDirectories(dirPath);
+            }
+
+            // Build content with delimiter-separated messages
+            StringBuilder content = new StringBuilder();
+            for (int i = 0; i < pinnedModel.getSize(); i++) {
+                String message = pinnedModel.get(i);
+                // Escape newlines to preserve multi-line text
+                String escapedMessage = message.replace("\n", "\\n").replace("\r", "\\r");
+                content.append(escapedMessage);
+                if (i < pinnedModel.getSize() - 1) {
+                    content.append("\n###PINNED_MESSAGE_SEPARATOR###\n");
+                }
+            }
+            
+            // Write to file as a single string
+            Files.write(Paths.get(PINNED_FILE), content.toString().getBytes());
+        } catch (IOException e) {
+            System.err.println("Error saving pinned messages: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Load pinned messages from persistent storage
+     */
+    private void loadPinnedMessages() {
+        try {
+            Path filePath = Paths.get(PINNED_FILE);
+            if (Files.exists(filePath)) {
+                // Read entire file content
+                String content = new String(Files.readAllBytes(filePath));
+                
+                if (content.trim().isEmpty()) {
+                    return;
+                }
+                
+                // Split by delimiter to get individual messages
+                String[] messages = content.split("\n###PINNED_MESSAGE_SEPARATOR###\n");
+                
+                for (String message : messages) {
+                    if (message != null && !message.trim().isEmpty()) {
+                        // Restore escaped newlines and carriage returns
+                        String restoredMessage = message.replace("\\n", "\n").replace("\\r", "\r");
+                        pinnedModel.addElement(restoredMessage);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error loading pinned messages: " + e.getMessage());
+        }
     }
 
 
@@ -267,7 +346,7 @@ public class CopyPasteFrame extends JPanel implements Serializable {
         try {
             clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
             return null;
         }
         try {
@@ -278,7 +357,7 @@ public class CopyPasteFrame extends JPanel implements Serializable {
 
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.err.println(ex.getMessage());
         }
         return text;
     }
