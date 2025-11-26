@@ -1,4 +1,5 @@
 # Copy-Paste
+<img width="905" height="474" alt="image" src="https://github.com/user-attachments/assets/efd6d9b7-81b0-4cf8-99f9-04f3c0cde348" />
 
 A lightweight Java Swing clipboard manager that keeps a running history of text you copy and lets you pin frequently used snippets for quick access. The app runs locally, uses a simple dark UI, and persists pinned items between sessions.
 
