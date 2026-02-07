@@ -1,7 +1,12 @@
+
 package com.github.youssefagagg;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.scene.input.Clipboard;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Background service that polls the system clipboard at a fixed interval
@@ -73,22 +78,29 @@ public final class ClipboardMonitorService {
 
     /**
      * Reads the current text content from the system clipboard.
-     * Must be called from the JavaFX application thread (or via runLater),
-     * but we use AWT clipboard for background-thread access.
+     * Uses the JavaFX clipboard via {@code Platform.runLater()} to avoid
+     * the AWT dependency that is unavailable in GraalVM native images.
      *
      * @return the clipboard text, or {@code null} if unavailable
      */
     private String getClipboardText() {
         try {
-            java.awt.datatransfer.Clipboard awtClipboard =
-                    java.awt.Toolkit.getDefaultToolkit().getSystemClipboard();
-            if (awtClipboard.isDataFlavorAvailable(java.awt.datatransfer.DataFlavor.stringFlavor)) {
-                return (String) awtClipboard.getContents(null)
-                        .getTransferData(java.awt.datatransfer.DataFlavor.stringFlavor);
-            }
+            CompletableFuture<String> future = new CompletableFuture<>();
+            Platform.runLater(() -> {
+                try {
+                    Clipboard clipboard = Clipboard.getSystemClipboard();
+                    if (clipboard.hasString()) {
+                        future.complete(clipboard.getString());
+                    } else {
+                        future.complete(null);
+                    }
+                } catch (Exception e) {
+                    future.complete(null);
+                }
+            });
+            return future.get(1, TimeUnit.SECONDS);
         } catch (Exception e) {
-            // clipboard may be temporarily unavailable
+            return null;
         }
-        return null;
     }
 }
