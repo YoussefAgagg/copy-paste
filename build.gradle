@@ -14,7 +14,7 @@ java {
 }
 
 application {
-    mainClass = 'com.github.youssefagagg.CopyPasteApp'
+    mainClass = 'com.github.youssefagagg.Launcher'
 }
 
 javafx {
@@ -25,7 +25,8 @@ javafx {
 gluonfx {
     verbose = true
     reflectionList = [
-            'com.github.youssefagagg.CopyPasteApp'
+            'com.github.youssefagagg.CopyPasteApp',
+            'com.github.youssefagagg.Launcher'
     ]
 }
 
@@ -41,7 +42,7 @@ dependencies {
 jar {
     manifest {
         attributes(
-                'Main-Class': 'com.github.youssefagagg.CopyPasteApp'
+                'Main-Class': 'com.github.youssefagagg.Launcher'
         )
     }
 }

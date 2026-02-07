@@ -52,13 +52,16 @@ Requires [GraalVM 21+](https://www.graalvm.org/) with `native-image` installed.
 
 # Step 2 – Compile to a native executable
 ./gradlew nativeCompile
+
+# Step 3 - Link the native executable
+./gradlew nativeLink
 ```
 
 The native executable will be generated in the `build/gluonfx/` directory.
 
 ```bash
 # Run the native executable (macOS/Linux)
-./build/gluonfx/*/CopyPasteApp
+./build/gluonfx/*/copy-paste
 ```
 
 ### Distributions via the Application plugin
