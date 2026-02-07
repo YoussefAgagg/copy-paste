@@ -1,0 +1,23 @@
+[
+  {
+    "name": "com.github.youssefagagg.CopyPasteApp",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "com.github.youssefagagg.ClipboardMonitorService",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "com.github.youssefagagg.PinnedMessageStore",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true
+  }
+]

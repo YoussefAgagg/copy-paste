@@ -1,0 +1,9 @@
+{
+  "resources": {
+    "includes": [
+      {
+        "pattern": "com/github/youssefagagg/dark-theme\\.css"
+      }
+    ]
+  }
+}

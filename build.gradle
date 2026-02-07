@@ -1,23 +1,47 @@
 plugins {
     id 'java'
     id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'com.gluonhq.gluonfx-gradle-plugin' version '1.0.28'
 }
 
 group = 'com.github.youssefagagg'
 version = '1.0-SNAPSHOT'
-mainClassName = 'com.github.youssefagagg.Main'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+application {
+    mainClass = 'com.github.youssefagagg.CopyPasteApp'
+}
+
+javafx {
+    version = '21.0.2'
+    modules = ['javafx.controls']
+}
+
+gluonfx {
+    verbose = true
+    reflectionList = [
+            'com.github.youssefagagg.CopyPasteApp'
+    ]
+}
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
+
 jar {
     manifest {
         attributes(
-                'Main-Class': 'com.github.youssefagagg.Main'
+                'Main-Class': 'com.github.youssefagagg.CopyPasteApp'
         )
     }
 }
